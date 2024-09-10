@@ -1,6 +1,6 @@
+// Register.jsx
 import React, { useState } from "react";
 import {
-  View,
   Text,
   TextInput,
   StyleSheet,
@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  View,
 } from "react-native";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import Logo from "../components/Media/Logo";
@@ -18,14 +19,17 @@ import {
   validatePasswordHasSpecialChar,
   validatePasswordHasNumber,
 } from "../utils/validations";
+import useRegister from "../hooks/useRegister";
+import InputPassword from "../components/Inputs/InputPassword"; // Importa el nuevo componente
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { register, loading, error } = useRegister();
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!validateEmail(email)) {
       setErrorMessage("Correo electrónico no válido");
       return;
@@ -49,11 +53,20 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    // Aquí puedes agregar la lógica de registro
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("Confirm Password:", confirmPassword);
-    setErrorMessage(""); // Limpiar mensaje de error si todo es válido
+    try {
+      const userData = {
+        email,
+        password,
+        name: "empty",
+        role: "user",
+        isActive: false,
+      };
+      await register(userData);
+      setErrorMessage(""); // Limpiar mensaje de error si todo es válido
+      navigation.navigate("Login"); // Navegar a la pantalla de inicio de sesión
+    } catch (err) {
+      setErrorMessage(err.message || "Error en el registro");
+    }
   };
 
   return (
@@ -75,21 +88,17 @@ export default function RegisterScreen({ navigation }) {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        <TextInput
-          style={styles.input}
+        <InputPassword
           placeholder="Contraseña"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
+          style={styles.customInput}
         />
-        <TextInput
-          style={styles.input}
+        <InputPassword
           placeholder="Confirmar contraseña"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
-          secureTextEntry
-          autoCapitalize="none"
+          style={styles.customInput}
         />
         <TouchableOpacity onPress={handleRegister} style={styles.iconButton}>
           <SimpleLineIcons name="user-follow" size={30} color="#000" />
@@ -122,11 +131,16 @@ const styles = StyleSheet.create({
   input: {
     width: "80%",
     padding: 16,
-    marginBottom: 16,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
     backgroundColor: "#fff",
+    marginBottom: 16,
+  },
+  customInput: {
+    // Estilos personalizados para el componente InputPassword
+    borderColor: "#000",
+    borderWidth: 2,
   },
   iconButton: {
     marginTop: 16,

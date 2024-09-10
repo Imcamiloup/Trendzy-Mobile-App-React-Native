@@ -18,6 +18,7 @@ import {
   validatePasswordHasSpecialChar,
   validatePasswordHasNumber,
 } from "../utils/validations";
+import InputPassword from "../components/Inputs/InputPassword";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
@@ -77,13 +78,11 @@ export default function LoginScreen({ navigation }) {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        <TextInput
-          style={styles.input}
+        <InputPassword
           placeholder="Contraseña"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
+          style={styles.customInput}
         />
         <TouchableOpacity onPress={handleLogin} style={styles.iconButton}>
           <SimpleLineIcons name="login" size={30} color="#000" />
