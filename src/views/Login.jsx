@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  View,
   Text,
   TextInput,
   StyleSheet,
@@ -19,13 +18,27 @@ import {
   validatePasswordHasNumber,
 } from "../utils/validations";
 import InputPassword from "../components/Inputs/InputPassword";
+import useAuth from "../hooks/useAuth";
+import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { login } = useAuth();
+  const isLogged = useSelector((state) => state.auth.isLogged);
+  const navigation = useNavigation();
 
-  const handleLogin = () => {
+  useEffect(() => {
+    if (isLogged) {
+      console.log("Login successfully");
+      console.log("Is logged:", isLogged);
+      navigation.navigate("Home"); // Ajusta el nombre de la pantalla de destino
+    }
+  }, [isLogged, navigation]);
+
+  const handleLogin = async () => {
     if (!validateNotEmpty(email)) {
       setErrorMessage("El campo de correo electrónico no puede estar vacío");
       return;
@@ -53,10 +66,21 @@ export default function LoginScreen({ navigation }) {
       return;
     }
 
+    // Si todas las validaciones pasan, limpiar el mensaje de error
+    setErrorMessage("");
+
     // Aquí puedes agregar la lógica de inicio de sesión
     console.log("Email:", email);
-    console.log("Password:", password);
-    setErrorMessage(""); // Limpiar mensaje de error si todo es válido
+    try {
+      await login({ email, password });
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
+  };
+
+  const handleRegisterSwitch = () => {
+    console.log("Switch to register screen");
+    navigation.navigate("Register");
   };
 
   return (
@@ -87,7 +111,7 @@ export default function LoginScreen({ navigation }) {
         <TouchableOpacity onPress={handleLogin} style={styles.iconButton}>
           <SimpleLineIcons name="login" size={30} color="#000" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+        <TouchableOpacity onPress={handleRegisterSwitch}>
           <Text style={styles.registerText}>
             ¿No tienes una cuenta? Regístrate
           </Text>
