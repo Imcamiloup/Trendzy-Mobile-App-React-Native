@@ -76,7 +76,7 @@ export default function RegisterScreen({ navigation }) {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Logo />
-        <Text style={styles.title}>Regístrate</Text>
+        <Text style={styles.title}>Regístrateee</Text>
         {errorMessage ? (
           <Text style={styles.errorText}>{errorMessage}</Text>
         ) : null}
