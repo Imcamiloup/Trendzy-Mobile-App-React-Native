@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import { API_URL } from "@env";
 
 const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -11,9 +12,9 @@ const useRegister = () => {
   const register = async (userData) => {
     console.log("userData", userData);
     try {
-      await axios.post("http://192.168.1.23:3002/api/user/register", userData);
-      //dispatch(registerUserSuccess(response.data));
-      console.log("Usuario registrado con éxito");
+      await axios.post(`${API_URL}/user/register`, userData);
+      const token = response.data.verificationToken;
+      console.log("Usuario registrado con éxito: ", token);
     } catch (err) {
       const errorMessage = err.response ? err.response.data : err.message;
       setError(errorMessage);

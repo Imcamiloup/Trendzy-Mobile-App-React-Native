@@ -10,13 +10,7 @@ import {
 } from "react-native";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import Logo from "../components/Media/Logo";
-import {
-  validateEmail,
-  validatePassword,
-  validateNotEmpty,
-  validatePasswordHasSpecialChar,
-  validatePasswordHasNumber,
-} from "../utils/validations";
+import { validateLoginForm } from "../utils/validations";
 import InputPassword from "../components/Inputs/InputPassword";
 import useAuth from "../hooks/useAuth";
 import { useSelector } from "react-redux";
@@ -34,42 +28,12 @@ export default function LoginScreen() {
     if (isLogged) {
       console.log("Login successfully");
       console.log("Is logged:", isLogged);
-      navigation.navigate("Home"); // Ajusta el nombre de la pantalla de destino
+      navigation.navigate("Home");
     }
   }, [isLogged, navigation]);
 
   const handleLogin = async () => {
-    if (!validateNotEmpty(email)) {
-      setErrorMessage("El campo de correo electrónico no puede estar vacío");
-      return;
-    }
-    if (!validateEmail(email)) {
-      setErrorMessage("Correo electrónico no válido");
-      return;
-    }
-    if (!validateNotEmpty(password)) {
-      setErrorMessage("El campo de contraseña no puede estar vacío");
-      return;
-    }
-    if (!validatePassword(password)) {
-      setErrorMessage("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-    if (!validatePasswordHasSpecialChar(password)) {
-      setErrorMessage(
-        "La contraseña debe contener al menos un carácter especial"
-      );
-      return;
-    }
-    if (!validatePasswordHasNumber(password)) {
-      setErrorMessage("La contraseña debe contener al menos un número");
-      return;
-    }
-
-    // Si todas las validaciones pasan, limpiar el mensaje de error
-    setErrorMessage("");
-
-    // Aquí puedes agregar la lógica de inicio de sesión
+    validateLoginForm(email, password);
     console.log("Email:", email);
     try {
       await login({ email, password });

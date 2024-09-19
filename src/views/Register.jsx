@@ -12,13 +12,7 @@ import {
 } from "react-native";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import Logo from "../components/Media/Logo";
-import {
-  validateEmail,
-  validatePassword,
-  validateConfirmPassword,
-  validatePasswordHasSpecialChar,
-  validatePasswordHasNumber,
-} from "../utils/validations";
+import { validateRegisterForm } from "../utils/validations";
 import useRegister from "../hooks/useRegister";
 import InputPassword from "../components/Inputs/InputPassword"; // Importa el nuevo componente
 
@@ -30,26 +24,10 @@ export default function RegisterScreen({ navigation }) {
   const { register, loading, error } = useRegister();
 
   const handleRegister = async () => {
-    if (!validateEmail(email)) {
-      setErrorMessage("Correo electrónico no válido");
-      return;
-    }
-    if (!validatePassword(password)) {
-      setErrorMessage("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-    if (!validatePasswordHasSpecialChar(password)) {
-      setErrorMessage(
-        "La contraseña debe contener al menos un carácter especial"
-      );
-      return;
-    }
-    if (!validatePasswordHasNumber(password)) {
-      setErrorMessage("La contraseña debe contener al menos un número");
-      return;
-    }
-    if (!validateConfirmPassword(password, confirmPassword)) {
-      setErrorMessage("Las contraseñas no coinciden");
+    //validar errores de formulario y producir un mensaje de error si es necesario
+    const error = validateRegisterForm(email, password, confirmPassword);
+    if (error) {
+      setErrorMessage(error);
       return;
     }
 

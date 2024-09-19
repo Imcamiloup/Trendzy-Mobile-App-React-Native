@@ -3,6 +3,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setIsLogged, setUserLoggedInfo } from "../redux/slices/authSlice";
 import parseJwt from "../services/auth/parseJwt";
+import { API_URL } from "@env";
 
 const useAuth = () => {
   const dispatch = useDispatch();
@@ -29,10 +30,7 @@ const useAuth = () => {
   const login = async (userData) => {
     console.log("User data:", userData);
     try {
-      const response = await axios.post(
-        "http://192.168.1.23:3002/api/user/login",
-        userData
-      );
+      const response = await axios.post(`${API_URL}/user/login`, userData);
       const token = response.data.token;
       // Guardar el token en el almacenamiento local
       await AsyncStorage.setItem("token", token);
