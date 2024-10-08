@@ -3,14 +3,32 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { setUserLoggedInfo, setIsLogged } from "../redux/slices/authSlice";
+import styles from "../styles/HomeStyles";
+import NavBar from "../components/NavBar";
+import News from "../components/News";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const infoUserLogged = useSelector((state) => state.auth.userLoggedInfo);
+  const isLogged = useSelector((state) => state.auth.isLogged);
+
+  useEffect(() => {
+    const checkAutentication = async () => {
+      const tokenStorage = await AsyncStorage.getItem("token");
+      const isLoggedStorage = await AsyncStorage.getItem("isLogged");
+      console.log("Checking if user is logged in", isLoggedStorage);
+      if (tokenStorage && isLoggedStorage === "true") {
+        dispatch(setIsLogged(true));
+      } else {
+        dispatch(setIsLogged(false));
+      }
+    };
+    checkAutentication();
+  }, []);
 
   const handleLogout = () => {
     AsyncStorage.removeItem("token");
@@ -36,73 +54,14 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.banner}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Home")}
-        >
-          <Text style={styles.buttonText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Profile")}
-        >
-          <Text style={styles.buttonText}>Perfil</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate("Settings")}
-        >
-          <Text style={styles.buttonText}>Configuraciones</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.button, styles.logoutButton]}
-          onPress={handleLogout}
-        >
-          <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.content}>
-        <Text style={styles.contentText}>
-          Bienvenido a la red social {infoUserLogged.email}
-        </Text>
-      </View>
+      <NavBar
+        navigation={navigation}
+        handleLogout={handleLogout}
+        styles={styles}
+      />
+      <News infoUserLogged={infoUserLogged} />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-    paddingTop: 30,
-  },
-  banner: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#6200ea",
-    paddingVertical: 10,
-  },
-  button: {
-    padding: 10,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-  },
-  logoutButton: {
-    backgroundColor: "red",
-  },
-  content: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  contentText: {
-    fontSize: 20,
-    color: "#333",
-  },
-});
 
 export default HomeScreen;

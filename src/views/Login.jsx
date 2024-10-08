@@ -8,13 +8,15 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
 import Logo from "../components/Media/Logo";
 import { validateLoginForm } from "../utils/validations";
 import InputPassword from "../components/Inputs/InputPassword";
 import useAuth from "../hooks/useAuth";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import { setIsLogged } from "../redux/slices/authSlice";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -23,6 +25,21 @@ export default function LoginScreen() {
   const { login } = useAuth();
   const isLogged = useSelector((state) => state.auth.isLogged);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const checkAutentication = async () => {
+      const tokenStorage = await AsyncStorage.getItem("token");
+      const isLoggedStorage = await AsyncStorage.getItem("isLogged");
+      console.log("Checking if user is logged in", isLoggedStorage);
+      if (tokenStorage && isLoggedStorage === "true") {
+        dispatch(setIsLogged(true));
+      } else {
+        dispatch(setIsLogged(false));
+      }
+    };
+    checkAutentication();
+  }, []);
 
   useEffect(() => {
     if (isLogged) {
@@ -33,12 +50,35 @@ export default function LoginScreen() {
   }, [isLogged, navigation]);
 
   const handleLogin = async () => {
-    validateLoginForm(email, password);
-    console.log("Email:", email);
     try {
+      // Validar el formulario de inicio de sesión
+      validateLoginForm(email, password);
+      // Intentar iniciar sesión
       await login({ email, password });
+      console.log("Inicio de sesión exitoso");
     } catch (error) {
-      console.error("Error during login:", error);
+      // Manejar diferentes tipos de errores
+      if (error.response) {
+        // Errores de respuesta del servidor
+        console.error("Error durante el inicio de sesión:", {
+          mensaje: error.response.data,
+          status: error.response.status,
+          headers: error.response.headers,
+        });
+      } else if (error.request) {
+        // Errores de solicitud sin respuesta
+        console.error(
+          "Error durante el inicio de sesión: No se recibió respuesta del servidor",
+          {
+            request: error.request,
+          }
+        );
+      } else {
+        // Otros errores
+        console.error("Error durante el inicio de sesión:", {
+          mensaje: error.message,
+        });
+      }
     }
   };
 

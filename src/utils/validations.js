@@ -73,8 +73,6 @@ export const validateLoginForm = (email, password) => {
   if (!validatePasswordHasUpperCase(password)) {
     return "La contraseña debe contener al menos una letra mayúscula";
   }
-  // Si todas las validaciones pasan, limpiar el mensaje de error
-  setErrorMessage("");
 };
 
 export const validateUsername = (username) => {
